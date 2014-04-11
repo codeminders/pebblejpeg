@@ -1,0 +1,20 @@
+{
+    "versionLabel": "1.0",
+    "uuid": "54c7ae70-4f11-4014-8461-f1476aefdbd0",
+    "appKeys": {},
+    "longName": "Pebble JPEG",
+    "versionCode": 1,
+    "capabilities": [
+        ""
+    ],
+    "shortName": "Pebble JPEG",
+    "companyName": "Codeminders",
+    "watchapp": {
+        "watchface": false
+    },
+    "resources": {
+        "media": [
+            
+        ]
+    }
+}
