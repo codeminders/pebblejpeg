@@ -22,7 +22,7 @@ typedef unsigned char uint8;
 typedef unsigned int uint;
 
 //------------------------------------------------------------------------------
-void set_pixel_from_grayscale (int nOffset, uint8 btValue);
+void set_pixel_from_grayscale (int nOffset, uint8 btValue, unsigned char bw_threshold);
 void jpeg_data_to_bitmap(int nImgHeight, int nImgWidth);
 
 
@@ -42,9 +42,6 @@ unsigned char g_BmpData[168][20];
 
 //Temporary buffer for decoded JPEG image - max Pebble display size
 unsigned char g_BmpTmpGrey[(144/8)*1*168];
-
-//Trigger value for decision to convert 8-bit grey color to black or white Pebble pixel
-unsigned char g_BlackTriggerValue = 128;
 
 //Error code of JPEG image decoding. 
 //0 - everything OK
@@ -101,7 +98,7 @@ unsigned char pjpeg_need_bytes_callback(unsigned char* pBuf, unsigned char buf_s
 // If reduce is non-zero, the image will be more quickly decoded at approximately
 // 1/8 resolution (the actual returned resolution will depend on the JPEG 
 // subsampling factor).
-uint8 *pjpeg_load_from_data(const unsigned char *pImgData, int nImgDataSize, int *x, int *y, int *comps, pjpeg_scan_type_t *pScan_type, int reduce)
+uint8 *pjpeg_load_from_data(const unsigned char *pImgData, int nImgDataSize, int *x, int *y, int *comps, pjpeg_scan_type_t *pScan_type, int reduce, unsigned char bw_threshold)
 {
    pjpeg_image_info_t image_info;
    int mcu_x = 0;
@@ -211,7 +208,7 @@ uint8 *pjpeg_load_from_data(const unsigned char *pImgData, int nImgDataSize, int
 
                      for (bx = 0; bx < bx_limit; bx++)
                      {
-                       set_pixel_from_grayscale (pDst - pImage, *pSrcR);
+                       set_pixel_from_grayscale (pDst - pImage, *pSrcR, bw_threshold);
                        pDst++;
                        pSrcR++;
                      }
@@ -251,7 +248,7 @@ uint8 *pjpeg_load_from_data(const unsigned char *pImgData, int nImgDataSize, int
 }
 
 
-void set_pixel_from_grayscale (int nOffset, uint8 btValue)
+void set_pixel_from_grayscale (int nOffset, uint8 btValue, unsigned char bw_threshold)
 {
 	int nByteArrayIndex;
 	int nInByteIndex;
@@ -260,7 +257,7 @@ void set_pixel_from_grayscale (int nOffset, uint8 btValue)
 	nByteArrayIndex = nOffset / (sizeof(uint8) * 8);
 	nInByteIndex = nOffset % (sizeof(uint8) * 8);
 
-	if (btValue > g_BlackTriggerValue)  {
+	if (btValue > bw_threshold)  {
 		btTmp = g_BmpTmpGrey[nByteArrayIndex];
 		btTmp |= (0x80 >> nInByteIndex);
 		g_BmpTmpGrey[nByteArrayIndex] = btTmp;

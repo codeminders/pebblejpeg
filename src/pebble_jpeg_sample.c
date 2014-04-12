@@ -18,11 +18,14 @@
 static Window *window;
 static Layer *layer;
 static GBitmap *image;
+static unsigned char threshold = 128;
 
 extern GBitmap g_Bmp;
 
+
+
 extern void init_bitmap();
-extern unsigned char *pjpeg_load_from_data(const unsigned char *pImgData, int nImgDataSize, int *x, int *y, int *comps, pjpeg_scan_type_t *pScan_type, int reduce);
+extern unsigned char *pjpeg_load_from_data(const unsigned char *pImgData, int nImgDataSize, int *x, int *y, int *comps, pjpeg_scan_type_t *pScan_type, int reduce, unsigned char bw_threshold);
   
 
 static void prepare_jpeg()
@@ -33,7 +36,7 @@ static void prepare_jpeg()
    int reduce = 0;
 
   init_bitmap();
-  pImage = pjpeg_load_from_data(g_Image, sizeof(g_Image), &width, &height, &comps, &scan_type, reduce);
+  pImage = pjpeg_load_from_data(g_Image, sizeof(g_Image), &width, &height, &comps, &scan_type, reduce, threshold);
   if (!pImage)
    {
    		//Error of JPEG decoding
@@ -53,12 +56,34 @@ static void layer_update_callback(Layer *me, GContext* ctx) {
   
 }
 
+static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if (threshold < 255) {
+    threshold += 10;
+    prepare_jpeg();
+  }
+  layer_mark_dirty(layer);
+}
+
+static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if (threshold > 0) {
+    threshold -= 10;
+    prepare_jpeg();
+  }
+  layer_mark_dirty(layer);
+}
+
+static void config_provider(void *context) {
+  window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
+  window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
+}
 
 int main(void) {
   
   
   window = window_create();
   window_stack_push(window, true /* Animated */);
+
+  window_set_click_config_provider(window, config_provider);
 
   // Init the layer for display the image
   Layer *window_layer = window_get_root_layer(window);
