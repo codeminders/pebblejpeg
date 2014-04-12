@@ -4,8 +4,8 @@ pebblejpeg
 JPEG decoding and display example for Pebble watch.
 
 This example show how to decode and display greyscale JPEG image on
-Pebble screen. The image data is hard-coded in the demo, but in real
-application the image could be retrieved using AppMessage API.
+Pebble screen. Sample image data is presently hardcoded for demo purposes.
+In real application the image could be retrieved using AppMessage API.
 
 Requirements:
 -------------
@@ -22,6 +22,13 @@ To install on your watch:
 -------------------------
 
     $ pebble install
+
+Running:
+--------
+
+After starting PEBBLEJPEG on your watch you can use UP and DOWN buttons to
+adjust greyscale->black and white conversion threshold.
+
 
 Authors:
 --------
